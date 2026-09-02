@@ -431,22 +431,102 @@ export async function handleMockRequest(method, url, data, params = {}) {
     return { data: { success: true, data: orders } };
   }
 
+  const singleOrderMatch = cleanUrl.match(/^\/orders\/(\d+)$/);
+  if (singleOrderMatch && method === 'get') {
+    const id = Number(singleOrderMatch[1]);
+    const orders = getItem(STORAGE_KEYS.ORDERS, []);
+    const order = orders.find((o) => Number(o.order_id) === id);
+    if (!order) {
+      const fallbackOrder = orders[0] || {
+        order_id: id,
+        user_id: 1,
+        full_name: 'Alex Rivera',
+        phone: '9876543210',
+        address_line: '221B Market Street',
+        apartment: 'Apt 4B',
+        city: 'San Francisco',
+        state: 'CA',
+        postal_code: '94103',
+        total_amount: 59.99,
+        order_status: 'CONFIRMED',
+        payment: { payment_method: 'WALLET', payment_status: 'SUCCESS' },
+        created_at: new Date().toISOString(),
+        items: [
+          {
+            order_item_id: 1,
+            product_name: 'Classic Running Shoes',
+            price: 59.99,
+            quantity: 1,
+            size: '9',
+            color: 'Black',
+          },
+        ],
+      };
+      return { data: { success: true, data: fallbackOrder } };
+    }
+    return { data: { success: true, data: order } };
+  }
+
   if (cleanUrl === '/orders' && method === 'post') {
     const cartItems = getItem(STORAGE_KEYS.CART, []);
     const summary = computeCartSummary(cartItems);
     const orders = getItem(STORAGE_KEYS.ORDERS, []);
     const addresses = getItem(STORAGE_KEYS.ADDRESSES, []);
-    const address = addresses.find((a) => a.address_id === Number(data.address_id)) || addresses[0];
+    const address =
+      addresses.find((a) => a.address_id === Number(data.address_id)) ||
+      addresses[0] || {
+        full_name: 'Alex Rivera',
+        phone: '9876543210',
+        address_line: '221B Market Street',
+        apartment: 'Apt 4B',
+        city: 'San Francisco',
+        state: 'CA',
+        postal_code: '94103',
+      };
 
     const newOrder = {
-      order_id: Date.now(),
+      order_id: Math.floor(100000 + Math.random() * 900000),
       user_id: 1,
       address_id: data.address_id,
-      address,
-      total_amount: summary.total,
-      order_status: 'PLACED',
+      full_name: address.full_name,
+      phone: address.phone,
+      address_line: address.address_line,
+      apartment: address.apartment,
+      city: address.city,
+      state: address.state,
+      postal_code: address.postal_code,
+      total_amount: summary.total || 59.99,
+      order_status: 'CONFIRMED',
+      payment: {
+        payment_method: data.payment_method || 'WALLET',
+        payment_status: 'SUCCESS',
+      },
       created_at: new Date().toISOString(),
-      items: [...cartItems],
+      items:
+        cartItems.length > 0
+          ? cartItems.map((item, idx) => ({
+              order_item_id: Date.now() + idx,
+              product_id: item.product_id,
+              product_name: item.product_name,
+              image_url: item.image_url,
+              price: item.price,
+              quantity: item.quantity,
+              size: item.size,
+              color: item.color,
+            }))
+          : [
+              {
+                order_item_id: Date.now(),
+                product_id: 1,
+                product_name: 'Premium Casual Cotton Shirt',
+                image_url:
+                  'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=800',
+                price: 29.99,
+                quantity: 1,
+                size: 'M',
+                color: 'White',
+              },
+            ],
     };
 
     orders.unshift(newOrder);
