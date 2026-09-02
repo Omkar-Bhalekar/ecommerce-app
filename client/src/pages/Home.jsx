@@ -114,9 +114,12 @@ export default function Home() {
       api.get('/products?sort=popularity&limit=8'),
     ])
       .then(([c, a, b]) => {
-        setCategories(c.data.data);
-        setArrivals(a.data.data.items);
-        setBest(b.data.data.items);
+        setCategories(c?.data?.data || []);
+        setArrivals(a?.data?.data?.items || []);
+        setBest(b?.data?.data?.items || []);
+      })
+      .catch((err) => {
+        console.error('Home load error:', err);
       })
       .finally(() => setLoading(false));
   }, []);

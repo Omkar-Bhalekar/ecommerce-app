@@ -1,10 +1,10 @@
 export const initialCategories = [
-  { category_id: 1, category_name: 'Men', image_url: 'https://images.unsplash.com/photo-1490578474895-699cd4e2cf59?w=800' },
-  { category_id: 2, category_name: 'Women', image_url: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800' },
-  { category_id: 3, category_name: 'Footwear', image_url: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800' },
-  { category_id: 4, category_name: 'Bags', image_url: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800' },
-  { category_id: 5, category_name: 'Watches', image_url: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800' },
-  { category_id: 6, category_name: 'Electronics', image_url: 'https://images.unsplash.com/photo-1518444065439-e933c06ce9cd?w=800' },
+  { category_id: 1, category_name: 'Men', image_url: 'https://images.unsplash.com/photo-1490578474895-699cd4e2cf59?w=800', product_count: 5 },
+  { category_id: 2, category_name: 'Women', image_url: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800', product_count: 5 },
+  { category_id: 3, category_name: 'Footwear', image_url: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800', product_count: 4 },
+  { category_id: 4, category_name: 'Bags', image_url: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800', product_count: 4 },
+  { category_id: 5, category_name: 'Watches', image_url: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800', product_count: 3 },
+  { category_id: 6, category_name: 'Electronics', image_url: 'https://images.unsplash.com/photo-1518444065439-e933c06ce9cd?w=800', product_count: 4 },
 ];
 
 export const initialProducts = [

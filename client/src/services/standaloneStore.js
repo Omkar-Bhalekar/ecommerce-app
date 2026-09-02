@@ -31,29 +31,39 @@ function setItem(key, value) {
 }
 
 export function getProducts() {
-  const items = getItem(STORAGE_KEYS.PRODUCTS, null);
-  if (!items || !Array.isArray(items) || items.length === 0) {
-    setItem(STORAGE_KEYS.PRODUCTS, initialProducts);
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
+    if (!raw) return initialProducts;
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) && parsed.length > 0 ? parsed : initialProducts;
+  } catch {
     return initialProducts;
   }
-  return items;
 }
 
 export function getCategories() {
-  const items = getItem(STORAGE_KEYS.CATEGORIES, null);
-  if (!items || !Array.isArray(items) || items.length === 0) {
-    setItem(STORAGE_KEYS.CATEGORIES, initialCategories);
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.CATEGORIES);
+    if (!raw) return initialCategories;
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) && parsed.length > 0 ? parsed : initialCategories;
+  } catch {
     return initialCategories;
   }
-  return items;
 }
 
-// Initial hydration
-if (!localStorage.getItem(STORAGE_KEYS.PRODUCTS) || getItem(STORAGE_KEYS.PRODUCTS, []).length === 0) {
-  setItem(STORAGE_KEYS.PRODUCTS, initialProducts);
-}
-if (!localStorage.getItem(STORAGE_KEYS.CATEGORIES) || getItem(STORAGE_KEYS.CATEGORIES, []).length === 0) {
-  setItem(STORAGE_KEYS.CATEGORIES, initialCategories);
+// Initial hydration - always overwrite if empty
+try {
+  const p = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
+  if (!p || !JSON.parse(p).length) {
+    localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(initialProducts));
+  }
+  const c = localStorage.getItem(STORAGE_KEYS.CATEGORIES);
+  if (!c || !JSON.parse(c).length) {
+    localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(initialCategories));
+  }
+} catch (e) {
+  // ignore
 }
 if (!localStorage.getItem(STORAGE_KEYS.REVIEWS)) {
   setItem(STORAGE_KEYS.REVIEWS, initialReviews);
