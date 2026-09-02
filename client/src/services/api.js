@@ -1,10 +1,17 @@
 import axios from 'axios';
 import { handleMockRequest } from './standaloneStore';
 
-const isStandalone = !import.meta.env.VITE_API_URL || import.meta.env.VITE_API_URL === 'mock';
+const isBrowser = typeof window !== 'undefined';
+const isLocalhost = isBrowser && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+const configuredUrl = import.meta.env.VITE_API_URL;
+
+// On Vercel / production or when no remote API is provided, use standalone mode
+const hasExternalApi = configuredUrl && !configuredUrl.includes('localhost') && configuredUrl !== 'mock';
+const useStandalone = !hasExternalApi && (!isLocalhost || !configuredUrl || configuredUrl === 'mock');
 
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+  baseURL: configuredUrl || 'http://localhost:5000/api',
+  timeout: 4000,
 });
 
 axiosInstance.interceptors.request.use((config) => {
@@ -26,7 +33,7 @@ axiosInstance.interceptors.response.use(
 
 const api = {
   get: async (url, config = {}) => {
-    if (isStandalone) {
+    if (useStandalone) {
       return handleMockRequest('get', url, null, config.params);
     }
     try {
@@ -39,7 +46,7 @@ const api = {
     }
   },
   post: async (url, data = {}, config = {}) => {
-    if (isStandalone) {
+    if (useStandalone) {
       return handleMockRequest('post', url, data, config.params);
     }
     try {
@@ -52,7 +59,7 @@ const api = {
     }
   },
   put: async (url, data = {}, config = {}) => {
-    if (isStandalone) {
+    if (useStandalone) {
       return handleMockRequest('put', url, data, config.params);
     }
     try {
@@ -65,7 +72,7 @@ const api = {
     }
   },
   delete: async (url, config = {}) => {
-    if (isStandalone) {
+    if (useStandalone) {
       return handleMockRequest('delete', url, null, config.params);
     }
     try {

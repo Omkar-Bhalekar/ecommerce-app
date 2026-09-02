@@ -30,11 +30,29 @@ function setItem(key, value) {
   }
 }
 
+export function getProducts() {
+  const items = getItem(STORAGE_KEYS.PRODUCTS, null);
+  if (!items || !Array.isArray(items) || items.length === 0) {
+    setItem(STORAGE_KEYS.PRODUCTS, initialProducts);
+    return initialProducts;
+  }
+  return items;
+}
+
+export function getCategories() {
+  const items = getItem(STORAGE_KEYS.CATEGORIES, null);
+  if (!items || !Array.isArray(items) || items.length === 0) {
+    setItem(STORAGE_KEYS.CATEGORIES, initialCategories);
+    return initialCategories;
+  }
+  return items;
+}
+
 // Initial hydration
-if (!localStorage.getItem(STORAGE_KEYS.PRODUCTS)) {
+if (!localStorage.getItem(STORAGE_KEYS.PRODUCTS) || getItem(STORAGE_KEYS.PRODUCTS, []).length === 0) {
   setItem(STORAGE_KEYS.PRODUCTS, initialProducts);
 }
-if (!localStorage.getItem(STORAGE_KEYS.CATEGORIES)) {
+if (!localStorage.getItem(STORAGE_KEYS.CATEGORIES) || getItem(STORAGE_KEYS.CATEGORIES, []).length === 0) {
   setItem(STORAGE_KEYS.CATEGORIES, initialCategories);
 }
 if (!localStorage.getItem(STORAGE_KEYS.REVIEWS)) {
@@ -128,13 +146,13 @@ export async function handleMockRequest(method, url, data, params = {}) {
 
   // Categories
   if (cleanUrl === '/categories' && method === 'get') {
-    const categories = getItem(STORAGE_KEYS.CATEGORIES, initialCategories);
+    const categories = getCategories();
     return { data: { success: true, data: categories } };
   }
 
   // Products
   if (cleanUrl === '/products/filters' && method === 'get') {
-    const products = getItem(STORAGE_KEYS.PRODUCTS, initialProducts);
+    const products = getProducts();
     const brands = [...new Set(products.map((p) => p.brand).filter(Boolean))];
     const sizes = [...new Set(products.flatMap((p) => (p.variants || []).map((v) => v.size)).filter(Boolean))];
     const colors = [...new Set(products.flatMap((p) => (p.variants || []).map((v) => v.color)).filter(Boolean))];
@@ -143,7 +161,7 @@ export async function handleMockRequest(method, url, data, params = {}) {
 
   if (cleanUrl === '/products/search' && method === 'get') {
     const query = (queryParams?.query || queryParams?.search || '').toLowerCase();
-    const products = getItem(STORAGE_KEYS.PRODUCTS, initialProducts);
+    const products = getProducts();
     const results = products.filter(
       (p) =>
         p.product_name.toLowerCase().includes(query) ||
@@ -163,7 +181,7 @@ export async function handleMockRequest(method, url, data, params = {}) {
 
   if (cleanUrl.startsWith('/products/category/') && method === 'get') {
     const categoryId = Number(cleanUrl.split('/')[3]);
-    const products = getItem(STORAGE_KEYS.PRODUCTS, initialProducts);
+    const products = getProducts();
     const results = products.filter((p) => p.category_id === categoryId);
     return {
       data: {
@@ -177,7 +195,7 @@ export async function handleMockRequest(method, url, data, params = {}) {
   }
 
   if (cleanUrl === '/products' && method === 'get') {
-    let products = getItem(STORAGE_KEYS.PRODUCTS, initialProducts);
+    let products = [...getProducts()];
 
     if (queryParams?.category) {
       products = products.filter((p) => String(p.category_id) === String(queryParams.category));
